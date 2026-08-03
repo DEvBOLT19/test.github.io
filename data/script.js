@@ -42,12 +42,12 @@ const PROJECTS = [
   },
 ];
 
-// ---------- render projects ----------
+// ---------- render interactive project boxes ----------
 function renderProjects() {
-  const list = document.getElementById("project-list");
-  if (!list) return;
+  const grid = document.getElementById("project-grid");
+  if (!grid) return;
 
-  list.innerHTML = PROJECTS.map(function (p, i) {
+  grid.innerHTML = PROJECTS.map(function (p, i) {
     const index = String(i + 1).padStart(2, "0");
     const tags = p.tags
       .map(function (t) {
@@ -56,21 +56,37 @@ function renderProjects() {
       .join("");
 
     return (
-      '<li class="project-item">' +
-      '<a class="project-link" href="' + p.url + '" target="_blank" rel="noopener noreferrer">' +
-      '<span class="project-index mono">' + index + "</span>" +
-      "<span>" +
+      '<div class="project-box" role="button" tabindex="0" data-index="' + i + '" aria-pressed="false">' +
+      '<span class="project-top">' +
+      '<span class="project-index mono">[' + index + "]</span>" +
+      '<a class="project-open mono" href="' + p.url + '" target="_blank" rel="noopener noreferrer" aria-label="Open ' + p.name + ' on GitHub">Open ↗</a>' +
+      "</span>" +
       '<span class="project-name">' + p.name + "</span>" +
       '<span class="project-desc mono">' + p.description + "</span>" +
-      "</span>" +
-      '<span class="project-meta">' +
-      tags +
-      '<span class="project-arrow" aria-hidden="true">&#8599;</span>' +
-      "</span>" +
-      "</a>" +
-      "</li>"
+      '<span class="project-tags">' + tags + "</span>" +
+      "</button>"
     );
   }).join("");
+
+  // click a box → light it up (alternating orange / blue) + grow; click again to release
+  grid.querySelectorAll(".project-box").forEach(function (box) {
+    box.addEventListener("click", function (e) {
+      // let the "Open ↗" link work normally without toggling
+      if (e.target.closest("a")) return;
+
+      const i = Number(box.dataset.index);
+      const colorClass = i % 2 === 0 ? "active-orange" : "active-blue";
+
+      if (box.classList.contains(colorClass)) {
+        box.classList.remove(colorClass);
+        box.setAttribute("aria-pressed", "false");
+      } else {
+        box.classList.remove("active-orange", "active-blue");
+        box.classList.add(colorClass);
+        box.setAttribute("aria-pressed", "true");
+      }
+    });
+  });
 }
 
 // ---------- copy helpers ----------
@@ -93,9 +109,75 @@ function wireCopyButton(buttonId, getValue) {
   });
 }
 
+// ---------- cursor glow ----------
+function wireCursorGlow() {
+  const glow = document.getElementById("cursor-glow");
+  if (!glow || window.matchMedia("(pointer: coarse)").matches) return;
+
+  document.addEventListener("mousemove", function (e) {
+    glow.style.left = e.clientX + "px";
+    glow.style.top = e.clientY + "px";
+    glow.style.opacity = "1";
+  });
+
+  document.addEventListener("mouseleave", function () {
+    glow.style.opacity = "0";
+  });
+}
+
+// ---------- scroll reveal ----------
+function wireReveal() {
+  const els = document.querySelectorAll(".reveal");
+  if (!("IntersectionObserver" in window)) {
+    els.forEach(function (el) { el.classList.add("is-visible"); });
+    return;
+  }
+
+  const observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          entry.target.classList.add("is-visible");
+          observer.unobserve(entry.target);
+        }
+      });
+    },
+    { threshold: 0.1 }
+  );
+
+  els.forEach(function (el) { observer.observe(el); });
+}
+
+// ---------- nav active section highlighting ----------
+function wireNavHighlight() {
+  const links = document.querySelectorAll(".nav-link");
+  const sections = ["top", "work", "contact"]
+    .map(function (id) { return document.getElementById(id); })
+    .filter(Boolean);
+
+  if (!("IntersectionObserver" in window) || sections.length === 0) return;
+
+  const observer = new IntersectionObserver(
+    function (entries) {
+      entries.forEach(function (entry) {
+        if (!entry.isIntersecting) return;
+        links.forEach(function (link) {
+          link.classList.toggle("is-active", link.dataset.section === entry.target.id);
+        });
+      });
+    },
+    { rootMargin: "-40% 0px -50% 0px" }
+  );
+
+  sections.forEach(function (s) { observer.observe(s); });
+}
+
 // ---------- init ----------
 document.addEventListener("DOMContentLoaded", function () {
   renderProjects();
+  wireCursorGlow();
+  wireReveal();
+  wireNavHighlight();
 
   const emailEl = document.getElementById("email-value");
   if (emailEl) emailEl.textContent = CONFIG.email;
