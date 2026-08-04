@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Watchlist — BOLT.</title>
+  <meta name="description" content="My curated movie watchlist — franchises, series, and standalone films." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="data/style.css" />
+</head>
+<body>
+  <!-- Grain overlay -->
+  <div class="grain" aria-hidden="true"></div>
+
+  <!-- Header -->
+  <header class="site-header">
+    <a href="index.html" class="logo">BOLT<span class="logo-dot">.</span></a>
+    <nav class="header-nav" aria-label="Primary">
+      <a href="index.html#work">Work</a>
+      <a href="watchlist.html" class="active">Watchlist</a>
+      <a href="index.html#contact">Contact</a>
+    </nav>
+  </header>
+
+  <main id="top">
+    <!-- Hero -->
+    <section class="hero" aria-labelledby="watchlist-title">
+      <p class="kicker mono">Personal collection</p>
+      <h1 id="watchlist-title" class="hero-title">
+        Movies I want to<br />
+        <em>watch</em>
+      </h1>
+      <p class="hero-sub">
+        A curated collection of films — franchises, series, and standalone works. Tracking what I&apos;ve watched, what I&apos;m currently watching, and what&apos;s on my radar.
+      </p>
+    </section>
+
+    <!-- Currently Watching -->
+    <section id="currently-watching" class="section" aria-labelledby="currently-watching-title">
+      <div class="section-head">
+        <h2 id="currently-watching-title" class="section-title">Currently watching</h2>
+      </div>
+      <div id="currently-watching-list" class="watchlist-grid">
+        <!-- Populated by data/script.js -->
+      </div>
+    </section>
+
+    <!-- Franchises -->
+    <section id="franchises" class="section" aria-labelledby="franchises-title">
+      <div class="section-head">
+        <h2 id="franchises-title" class="section-title">Franchises</h2>
+        <span class="section-link mono" id="franchise-count">0 franchises</span>
+      </div>
+      <div id="franchises-list" class="franchises-list">
+        <!-- Populated by data/script.js -->
+      </div>
+    </section>
+
+    <!-- Standalone -->
+    <section id="standalone" class="section" aria-labelledby="standalone-title">
+      <div class="section-head">
+        <h2 id="standalone-title" class="section-title">Standalone films</h2>
+        <span class="section-link mono" id="standalone-count">0 films</span>
+      </div>
+      <div id="standalone-list" class="watchlist-grid">
+        <!-- Populated by data/script.js -->
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="section stats-section" aria-labelledby="stats-title">
+      <h2 id="stats-title" class="sr-only">Watchlist statistics</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <p class="stat-number mono" id="stat-total">0</p>
+          <p class="stat-label mono">Total films</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number mono" id="stat-watched">0</p>
+          <p class="stat-label mono">Watched</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number mono" id="stat-watching">0</p>
+          <p class="stat-label mono">Currently watching</p>
+        </div>
+        <div class="stat-card">
+          <p class="stat-number mono" id="stat-pending">0</p>
+          <p class="stat-label mono">Pending</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span class="mono">© <span id="year">2026</span> BOLT.</span>
+    <span class="mono">Designed &amp; built by BOLT</span>
+  </footer>
+
+  <script src="data/script.js"></script>
+</body>
+</html>

@@ -7,6 +7,58 @@ const CONFIG = {
   github: "https://github.com/DEvBOLT19",
 };
 
+// ---------- watchlist ----------
+const WATCHLIST = {
+  franchises: [
+    {
+      name: "Marvel Cinematic Universe",
+      shortName: "MCU",
+      movies: [
+        {
+          title: "Iron Man",
+          releaseDate: "2008",
+          availableInIndia: true,
+          where: "Disney+ Hotstar",
+          watched: true,
+          currentlyWatching: false
+        }
+      ]
+    },
+    {
+      name: "The Dark Knight Trilogy",
+      shortName: "TDK",
+      movies: [
+        {
+          title: "Batman Begins",
+          releaseDate: "2005",
+          availableInIndia: true,
+          where: "Prime Video",
+          watched: true,
+          currentlyWatching: false
+        },
+        {
+          title: "The Dark Knight",
+          releaseDate: "2008",
+          availableInIndia: true,
+          where: "Prime Video",
+          watched: false,
+          currentlyWatching: true
+        }
+      ]
+    }
+  ],
+  standalone: [
+    {
+      title: "Inception",
+      releaseDate: "2010",
+      availableInIndia: true,
+      where: "Netflix",
+      watched: false,
+      currentlyWatching: false
+    }
+  ]
+};
+
 // ---------- projects (from github.com/DEvBOLT19) ----------
 const PROJECTS = [
   {
@@ -93,9 +145,140 @@ function wireCopyButton(buttonId, getValue) {
   });
 }
 
+// ---------- render watchlist ----------
+function renderWatchlist() {
+  // Currently watching
+  const currentlyWatchingList = document.getElementById("currently-watching-list");
+  if (currentlyWatchingList) {
+    const currentMovies = [];
+    WATCHLIST.franchises.forEach(function (f) {
+      f.movies.forEach(function (m) {
+        if (m.currentlyWatching) currentMovies.push({ ...m, franchise: f.name });
+      });
+    });
+    WATCHLIST.standalone.forEach(function (m) {
+      if (m.currentlyWatching) currentMovies.push(m);
+    });
+
+    if (currentMovies.length === 0) {
+      currentlyWatchingList.innerHTML = '<p class="empty-state mono">No movies currently being watched</p>';
+    } else {
+      currentlyWatchingList.innerHTML = currentMovies.map(function (m) {
+        return renderMovieCard(m);
+      }).join("");
+    }
+  }
+
+  // Franchises
+  const franchisesList = document.getElementById("franchises-list");
+  if (franchisesList) {
+    franchisesList.innerHTML = WATCHLIST.franchises.map(function (f) {
+      return renderFranchise(f);
+    }).join("");
+  }
+  const franchiseCount = document.getElementById("franchise-count");
+  if (franchiseCount) franchiseCount.textContent = WATCHLIST.franchises.length + " franchises";
+
+  // Standalone
+  const standaloneList = document.getElementById("standalone-list");
+  if (standaloneList) {
+    standaloneList.innerHTML = WATCHLIST.standalone.map(function (m) {
+      return renderMovieCard(m);
+    }).join("");
+  }
+  const standaloneCount = document.getElementById("standalone-count");
+  if (standaloneCount) standaloneCount.textContent = WATCHLIST.standalone.length + " films";
+
+  // Stats
+  updateWatchlistStats();
+}
+
+function renderFranchise(franchise) {
+  const moviesHtml = franchise.movies.map(function (m) {
+    return renderMovieInFranchise(m);
+  }).join("");
+
+  return (
+    '<div class="franchise-card">' +
+    '<div class="franchise-header">' +
+    '<h3 class="franchise-name">' + franchise.name + '</h3>' +
+    '<span class="franchise-tag mono">' + franchise.shortName + '</span>' +
+    '</div>' +
+    '<div class="franchise-movies">' +
+    moviesHtml +
+    '</div>' +
+    '</div>'
+  );
+}
+
+function renderMovieInFranchise(movie) {
+  const statusClass = movie.watched ? 'watched' : movie.currentlyWatching ? 'watching' : 'pending';
+  const statusText = movie.watched ? '✓ Watched' : movie.currentlyWatching ? '▶ Watching' : 'Pending';
+  
+  return (
+    '<div class="movie-in-franchise">' +
+    '<div class="movie-info">' +
+    '<p class="movie-title">' + movie.title + '</p>' +
+    '<p class="movie-meta mono">' + movie.releaseDate + ' • ' + movie.where + '</p>' +
+    '</div>' +
+    '<span class="movie-status ' + statusClass + ' mono">' + statusText + '</span>' +
+    '</div>'
+  );
+}
+
+function renderMovieCard(movie) {
+  const statusClass = movie.watched ? 'watched' : movie.currentlyWatching ? 'watching' : 'pending';
+  const statusText = movie.watched ? '✓ Watched' : movie.currentlyWatching ? '▶ Watching' : 'Pending';
+  const franchiseText = movie.franchise ? ' • ' + movie.franchise : '';
+  
+  return (
+    '<div class="movie-card">' +
+    '<div class="movie-card-content">' +
+    '<h3 class="movie-card-title">' + movie.title + '</h3>' +
+    '<p class="movie-card-meta mono">' + movie.releaseDate + franchiseText + '</p>' +
+    '<p class="movie-card-location mono">' + movie.where + '</p>' +
+    '</div>' +
+    '<span class="movie-card-status ' + statusClass + ' mono">' + statusText + '</span>' +
+    '</div>'
+  );
+}
+
+function updateWatchlistStats() {
+  let total = 0;
+  let watched = 0;
+  let watching = 0;
+
+  WATCHLIST.franchises.forEach(function (f) {
+    f.movies.forEach(function (m) {
+      total += 1;
+      if (m.watched) watched += 1;
+      else if (m.currentlyWatching) watching += 1;
+    });
+  });
+
+  WATCHLIST.standalone.forEach(function (m) {
+    total += 1;
+    if (m.watched) watched += 1;
+    else if (m.currentlyWatching) watching += 1;
+  });
+
+  const pending = total - watched - watching;
+
+  const totalEl = document.getElementById("stat-total");
+  const watchedEl = document.getElementById("stat-watched");
+  const watchingEl = document.getElementById("stat-watching");
+  const pendingEl = document.getElementById("stat-pending");
+
+  if (totalEl) totalEl.textContent = String(total);
+  if (watchedEl) watchedEl.textContent = String(watched);
+  if (watchingEl) watchingEl.textContent = String(watching);
+  if (pendingEl) pendingEl.textContent = String(pending);
+}
+
 // ---------- init ----------
 document.addEventListener("DOMContentLoaded", function () {
   renderProjects();
+  renderWatchlist();
 
   const emailEl = document.getElementById("email-value");
   if (emailEl) emailEl.textContent = CONFIG.email;
